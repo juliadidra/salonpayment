@@ -1,0 +1,62 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  name      String
+  image     String?
+  password  String
+  createdAt DateTime @default(now())
+
+  store Store[]
+}
+
+model Store {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+  name String
+  mPagoToken String
+  createdAt DateTime @default(now())
+
+  product Product[]
+  history History[]
+
+  user User @relation(references: [id], fields: [userId])
+}
+
+model Product {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  storeId String @db.ObjectId
+  name String
+  price Float
+  createdAt DateTime @default(now())
+
+  store Store @relation(references: [id], fields: [storeId])
+}
+
+model History {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  storeId String @db.ObjectId
+  description String
+  value Float
+  paymentMethod PaymentMethod
+  createdAt DateTime @default(now())
+
+  store Store @relation(references: [id], fields: [storeId])
+}
+
+enum PaymentMethod {
+  pix
+  credito
+  debito
+}
